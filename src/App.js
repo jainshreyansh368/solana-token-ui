@@ -6,11 +6,14 @@ import { connection } from './utils/connection'
 import './App.css'
 import { AirDrop } from './utils/airDrop';
 import { sendTxUsingExternalSignature } from './components/externalWallet'
+import { createAssociatedTokenAccount } from './components/associatedAccounts'
+import { createSupply } from './components/initial_supply';
 
 const App = () => {
     const [count, setCount] = useState();
     const [pubKey, setPubKey] = useState();
     const [mintKey, setMintKey] = useState();
+    const [asAccount, setAsAccount] = useState(null);
 
     useEffect(() => {}, [pubKey])
 
@@ -75,10 +78,31 @@ const App = () => {
         );
 
         setMintKey(mintAccount.publicKey.toString());
+        return mintAccount;
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    return (
+    const TokenCreationHandler = async() => {
+        const createdTokenAccount = await TokenCreation();
+        const res = await createAssociatedTokenAccount(
+            "",
+            true,
+            createdTokenAccount.publicKey,
+            pubKey
+        );
+        
+        setAsAccount(res); //associatedAccount
+
+        createSupply(
+            createdTokenAccount.publicKey,
+            pubKey,
+            pubKey,
+            [],
+            10
+        )
+    }
+
+return (
         <div className = "App">
             <h1>Hey: { pubKey ? pubKey.toString() : ""}</h1>
             <button onClick = {connectWallet}>Connect Here!</button>
@@ -86,11 +110,16 @@ const App = () => {
             <br />
             <br />
             <button onClick={() => AirDrop(pubKey)}>AirDrop</button>
-            <button onClick={TokenCreation}>TokenCreation</button>
+            <button onClick={TokenCreationHandler}>TokenCreation</button>
             <h2>MINT ACCOUNT: {mintKey ? mintKey : ''}</h2>
             <a  href={`https://explorer.solana.com/address/${mintKey}?cluster=devnet`}>Take me to my Token</a>
+            {asAccount ? (
+                <h5>
+                    The created Associated account is : {asAccount}
+                </h5>
+            ):
+            (<br />)}
         </div>
     )
 }
-
 export default App

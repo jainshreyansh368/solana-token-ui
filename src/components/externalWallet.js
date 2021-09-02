@@ -9,7 +9,9 @@ export const sendTxUsingExternalSignature = async(
 ) => {
 
     let tx = new Transaction();
+    
     tx.add(...instructions);
+    
     tx.recentBlockhash = (await connection.getRecentBlockhash("max")).blockhash;
 
     tx.setSigners(
@@ -24,6 +26,8 @@ export const sendTxUsingExternalSignature = async(
     });
     
     const signedTransaction = await window.solana.signTransaction(tx);
+    
     const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+    
     console.log(signature);
 }
