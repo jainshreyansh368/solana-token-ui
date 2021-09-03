@@ -1,8 +1,7 @@
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-// import {createAccount} from "./accounts";
-import {COMMITMENT, connection} from "../utils/connection";
-// import { sendTxUsingExternalSignature } from './externalWallet';
+import {connection} from "../utils/connection";
+import { sendTxUsingExternalSignature } from './externalWallet';
 
 const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID = new PublicKey(
     "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
@@ -38,36 +37,6 @@ export const findAssociatedTokenAccountPublicKey = async(ownerPublicKey, tokenMi
         SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
     )
 )[0];
-
-export const sendTxUsingExternalSignature = async(
-    instructions,
-    connection,
-    feePayer,
-    signersExceptWallet,
-    wallet //this is a public key
-) => {
-
-    let tx = new Transaction();
-    tx.add(...instructions);
-    tx.recentBlockhash = (await connection.getRecentBlockhash("max")).blockhash;
-
-    tx.setSigners(
-            ...(feePayer
-            ? [(feePayer).publicKey, wallet] //change user
-            : [wallet]), //change user
-            ...signersExceptWallet.map(s => s.publicKey)
-    );
-    signersExceptWallet.forEach(acc => {
-        tx.partialSign(acc);
-    });
-    const signedTransaction = await window.solana.signTransaction(tx);
-    const signature = await connection.sendRawTransaction(signedTransaction.serialize(), {
-        skipPreflight: false,
-        preflightCommitment: COMMITMENT
-    });
-
-    console.log(signature);
-}
 
 export const createAssociatedTokenAccount = async(
     feePayerSecret, //dont need it since we are externally signing the transaction 

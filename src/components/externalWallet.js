@@ -1,4 +1,5 @@
 import { Transaction } from "@solana/web3.js"
+import { COMMITMENT } from '../utils/connection'
 
 export const sendTxUsingExternalSignature = async(
     instructions,
@@ -9,9 +10,7 @@ export const sendTxUsingExternalSignature = async(
 ) => {
 
     let tx = new Transaction();
-    
     tx.add(...instructions);
-    
     tx.recentBlockhash = (await connection.getRecentBlockhash("max")).blockhash;
 
     tx.setSigners(
@@ -24,10 +23,12 @@ export const sendTxUsingExternalSignature = async(
     signersExceptWallet.forEach(acc => {
         tx.partialSign(acc);
     });
-    
+
     const signedTransaction = await window.solana.signTransaction(tx);
-    
-    const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-    
+    const signature = await connection.sendRawTransaction(signedTransaction.serialize(), {
+        skipPreflight: false,
+        preflightCommitment: COMMITMENT
+    });
+
     console.log(signature);
 }

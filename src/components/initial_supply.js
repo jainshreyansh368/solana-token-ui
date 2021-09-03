@@ -1,10 +1,11 @@
 //NOT WORKING
 import {Token, TOKEN_PROGRAM_ID} from '@solana/spl-token';
-import { Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import {COMMITMENT, connection} from '../utils/connection'
 
 export const createSupply = ( mintPublicKey, dest, authority, multiSigners, amount) => {
-    const Ix = Token.createMintToInstruction(TOKEN_PROGRAM_ID, mintPublicKey, dest, authority, multiSigners, amount);
+    const desti = new PublicKey(dest);
+    const Ix = Token.createMintToInstruction(TOKEN_PROGRAM_ID, mintPublicKey, desti, authority, multiSigners, amount);
     sendTxUsingExternalSignature([Ix], connection, null, [], authority);
 }
 

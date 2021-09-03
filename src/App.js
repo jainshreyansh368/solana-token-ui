@@ -90,18 +90,17 @@ const App = () => {
             createdTokenAccount.publicKey,
             pubKey
         );
-        
-        setAsAccount(res); //associatedAccount
 
+        setAsAccount(res); //associatedAccount
+        
         createSupply(
             createdTokenAccount.publicKey,
-            pubKey,
+            res,
             pubKey,
             [],
-            10
+            1000000000
         )
     }
-
 return (
         <div className = "App">
             <h1>Hey: { pubKey ? pubKey.toString() : ""}</h1>
