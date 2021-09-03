@@ -1,13 +1,10 @@
-// version 0.0
-import React, { useEffect, useState } from 'react'
-import {Keypair, PublicKey, SystemProgram} from '@solana/web3.js';
-import { MintLayout, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { connection } from './utils/connection'
-import './App.css'
+// version 0.1
+import React, { useEffect, useState } from 'react';
+import './App.css';
 import { AirDrop } from './utils/airDrop';
-import { sendTxUsingExternalSignature } from './components/externalWallet'
 import { createAssociatedTokenAccount } from './components/associatedAccounts'
 import { createSupply } from './components/initial_supply';
+import {TokenCreation} from './components/tokenCreation';
 
 const App = () => {
     const [count, setCount] = useState();
@@ -17,7 +14,6 @@ const App = () => {
 
     useEffect(() => {}, [pubKey])
 
-    
 /////////////////////////////////////////////////////////////Connections////////////////////////////////////////////    
     const getConnectedWallet = async()=> {    
     const provider = await window.solana;
@@ -46,44 +42,12 @@ const App = () => {
         setPubKey();
     }
 
-////////////////////////////////////////////////////////TOKEN CREATIONS////////////////////////////////////////////////
-    const TokenCreation = async() => {
-        const mintAccount = Keypair.generate();
-        
-        const createAccountIx = SystemProgram.createAccount({
-            fromPubkey: pubKey,
-            newAccountPubkey: mintAccount.publicKey,
-            lamports: await connection.getMinimumBalanceForRentExemption(
-                MintLayout.span,
-                "singleGossip"
-            ),
-            space: MintLayout.span,
-            programId: TOKEN_PROGRAM_ID
-        })
-
-        const initMintIx = Token.createInitMintInstruction(
-            TOKEN_PROGRAM_ID,
-            mintAccount.publicKey,
-            9, //DECIMALS 
-            pubKey, //mint Auth
-            null, //freeze Auth
-        )
-
-        await sendTxUsingExternalSignature(
-            [createAccountIx, initMintIx],
-            connection,
-            null,
-            [mintAccount],
-            new PublicKey(pubKey)
-        );
-
-        setMintKey(mintAccount.publicKey.toString());
-        return mintAccount;
-    }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     const TokenCreationHandler = async() => {
-        const createdTokenAccount = await TokenCreation();
+        const createdTokenAccount = await TokenCreation(pubKey);
+        
+        setMintKey(createdTokenAccount.publicKey.toString());
+
         const res = await createAssociatedTokenAccount(
             "",
             true,
