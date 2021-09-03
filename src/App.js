@@ -1,19 +1,26 @@
 // version 0.1
 import React, { useEffect, useState } from 'react';
-import './App.css';
 import { AirDrop } from './utils/airDrop';
 import { createAssociatedTokenAccount } from './components/associatedAccounts'
 import { createSupply } from './components/initial_supply';
 import {TokenCreation} from './components/tokenCreation';
+import {transferTokenHandler} from './components/transferToken';
+import './App.css';
 
 const App = () => {
     const [count, setCount] = useState();
     const [pubKey, setPubKey] = useState();
     const [mintKey, setMintKey] = useState();
     const [asAccount, setAsAccount] = useState(null);
+    const [owner, setOwner] = useState();
+    const [destination, setDestination] = useState();
+    const [transferToken, settransferToken] = useState();
+    const [amount, setAmount] = useState();
 
     useEffect(() => {}, [pubKey])
 
+
+    
 /////////////////////////////////////////////////////////////Connections////////////////////////////////////////////    
     const getConnectedWallet = async()=> {    
     const provider = await window.solana;
@@ -23,6 +30,7 @@ const App = () => {
     }
     else console.log("Try to connect again");
     }
+
 
     const connectWallet = async() => {
         const provider = window.solana;
@@ -41,7 +49,6 @@ const App = () => {
         localStorage.removeItem('pubKey')
         setPubKey();
     }
-
 
     const TokenCreationHandler = async() => {
         const createdTokenAccount = await TokenCreation(pubKey);
@@ -65,6 +72,30 @@ const App = () => {
             1000000000
         )
     }
+
+
+
+////////////////////////////////////////////////////////TRANSFER-TOKENS//////////////////////////////////////////////////////////
+    const handleOwnerChange = (e) => {
+        e.preventDefault();
+        setOwner(e.target.value);
+    }
+
+    const handleDestinationChange = (e) => {
+        e.preventDefault();
+        setDestination(e.target.value);
+    }
+
+    const handleTokenMintChange = (e) => {
+        e.preventDefault();
+        settransferToken(e.target.value);
+    }
+
+    const handleTokenAmountChange = (e) => {
+        e.preventDefault();
+        setAmount(e.target.value);
+    }
+
 return (
         <div className = "App">
             <h1>Hey: { pubKey ? pubKey.toString() : ""}</h1>
@@ -82,6 +113,34 @@ return (
                 </h5>
             ):
             (<br />)}
+            <br />
+            <br />
+            <br />
+            <br />
+            <h1>Transfer Tokens</h1>
+            <form>
+                
+                <label htmlFor=""> Owner: </label>
+                <input type="text" placeholder="Public Account Address" onChange={handleOwnerChange} />
+                <br />
+                <br />
+
+                <label htmlFor=""> Destination: </label>
+                <input type="text" placeholder="Public Account Address" onChange={handleDestinationChange} />
+                <br />
+                <br />
+
+                <label htmlFor=""> Token-Mint: </label>
+                <input type="text" placeholder="Public Account Address" onChange={handleTokenMintChange} />                        
+                <br />
+                <br />
+
+                <label htmlFor=""> Amount: </label>
+                <input type="text" placeholder="Token Value" onChange={handleTokenAmountChange} />                        
+                <br />
+                <br />
+            </form>
+            <button onClick = {() => transferTokenHandler(owner, destination, transferToken, amount)}> Transfer </button>
         </div>
     )
 }
