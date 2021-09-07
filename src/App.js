@@ -5,6 +5,7 @@ import { createAssociatedTokenAccount } from './components/associatedAccounts'
 import { createSupply } from './components/initial_supply';
 import {TokenCreation} from './components/tokenCreation';
 import {transferTokenHandler} from './components/transferToken';
+import { NFTCreation } from "./components/NFTCreation";
 import './App.css';
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
     const [destination, setDestination] = useState();
     const [transferToken, settransferToken] = useState();
     const [amount, setAmount] = useState();
+    const [NFTpubkey, setNFTpubkey] = useState();
 
     useEffect(() => {}, [pubKey])
 
@@ -72,6 +74,11 @@ const App = () => {
             1000000000
         )
     }
+    
+  const NFTCreationHandler = async () => {
+    const NFTCreated = await NFTCreation(pubKey);
+    setNFTpubkey(NFTCreated.publicKey.toString());
+  };
 
 
 
@@ -105,8 +112,11 @@ return (
             <br />
             <button onClick={() => AirDrop(pubKey)}>AirDrop</button>
             <button onClick={TokenCreationHandler}>TokenCreation</button>
+            <button onClick={NFTCreationHandler}>NFTCreation</button>
             <h2>MINT ACCOUNT: {mintKey ? mintKey : ''}</h2>
             <a  href={`https://explorer.solana.com/address/${mintKey}?cluster=devnet`}>Take me to my Token</a>
+            <br /><br />
+            <a  href={`https://explorer.solana.com/address/${NFTpubkey}?cluster=devnet`}>View NFT Minted</a>
             {asAccount ? (
                 <h5>
                     The created Associated account is : {asAccount}
